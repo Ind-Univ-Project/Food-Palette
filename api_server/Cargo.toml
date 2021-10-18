@@ -7,3 +7,10 @@ edition = "2018"
 
 [dependencies]
 sqlx = {version = "*", features = [ "runtime-async-std-rustls", "mysql" ]}
+tide = "*"
+http-types = "*"
+
+async-std = { version = "*", features = ["attributes"] }
+serde = { version = "*", features = ["derive"] }
+
+thiserror = "*"
