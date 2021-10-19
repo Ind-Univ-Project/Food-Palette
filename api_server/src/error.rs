@@ -6,7 +6,9 @@ pub enum Error {
     #[error("[image] Can not resolve image format str")]
     UnresolvableImageFormat,
     #[error("[image] Fail to load image with format")]
-    ImageLoadWithFormatError(#[from] image::ImageError),
+    ImageError(#[from] image::ImageError),
     #[error("[tide] Fail to get peer address")]
     PeerAddressError,
+    #[error("[async-std] Fail to create directory all")]
+    CreateDirectoryError(async_std::io::Error),
 }
