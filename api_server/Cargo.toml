@@ -15,3 +15,4 @@ serde = { version = "*", features = ["derive"] }
 
 thiserror = "*"
 image = "*"
+uuid = { version = "*", features = ["v4"] }
