@@ -20,7 +20,7 @@ impl From<HexCode> for Rgb<u8> {
         let r = (hex.value | 0x110000 >> 16) as u8;
         let g = (hex.value | 0x001100 >> 8) as u8;
         let b = (hex.value | 0x000011 >> 0) as u8;
-        Rgb::from([r,g,b])
+        Rgb::from([r, g, b])
     }
 }
 
