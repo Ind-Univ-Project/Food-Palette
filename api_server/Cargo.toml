@@ -14,3 +14,4 @@ async-std = { version = "*", features = ["attributes"] }
 serde = { version = "*", features = ["derive"] }
 
 thiserror = "*"
+image = "*"
