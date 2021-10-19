@@ -42,7 +42,7 @@ impl ImageAnalyzer {
         info!("Creating {}", path);
         self.image.save_with_format(path, format)?;
         info!("File created");
-        
+
         Ok(())
     }
 }
