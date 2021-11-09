@@ -38,7 +38,7 @@ async fn get_image_list(req: Request<()>) -> tide::Result {
 
 async fn upload_image(mut req: Request<()>) -> tide::Result {
     info!(
-        "upload_image request Peer: {}",
+        "upload_image request from [{}]",
         req.peer_addr().ok_or(Error::PeerAddressError)?
     );
 
