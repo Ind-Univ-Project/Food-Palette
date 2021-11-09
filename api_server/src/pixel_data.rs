@@ -15,7 +15,7 @@ pub struct PixelData {
 impl PixelData {
     /// PixelData 인스턴스를 생성
     /// 
-    /// #Arguments
+    /// # Arguments
     /// 
     /// * `*_div` - r,g,b 영역을 분할하는 값
     pub fn new(r_div: u8, g_div: u8, b_div: u8) -> Self {

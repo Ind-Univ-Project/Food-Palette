@@ -35,7 +35,7 @@ impl ImageAnalyzer {
 
     /// 주어진 포맷 정보에 맞춰 이미지를 저장한다.
     /// 
-    /// #Arguments
+    /// # Arguments
     /// *`format` - 이미지의 포맷
     pub async fn save_with_format(&self, format: ImageFormat) -> Result<(), Error> {
         fs::create_dir_all("./data/images")
