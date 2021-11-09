@@ -3,6 +3,12 @@ use image::Rgb;
 pub struct HexCode {
     pub value: u32,
 }
+impl HexCode {
+    pub fn new(value: u32) -> Self {
+        assert_eq!(0xFF000000 & value, 0);
+        Self { value }
+    }
+}
 trait ToHexCode {
     fn to_hex_code(&self) -> HexCode;
 }
@@ -17,9 +23,9 @@ impl ToHexCode for Rgb<u8> {
 
 impl From<HexCode> for Rgb<u8> {
     fn from(hex: HexCode) -> Self {
-        let r = (hex.value | 0x110000 >> 16) as u8;
-        let g = (hex.value | 0x001100 >> 8) as u8;
-        let b = (hex.value | 0x000011 >> 0) as u8;
+        let r = ((hex.value & 0xFF0000) >> 16) as u8;
+        let g = ((hex.value & 0x00FF00) >> 8) as u8;
+        let b = ((hex.value & 0x0000FF) >> 0) as u8;
         Rgb::from([r, g, b])
     }
 }
@@ -34,5 +40,14 @@ mod test {
 
         let rgb2 = Rgb::from([0xca as u8, 0xfe, 0xdd]);
         assert_eq!(rgb2.to_hex_code().value, 0xcafedd);
+    }
+
+    #[test]
+    fn from_hed_code_test() {
+        let rgb = Rgb::from(HexCode::new(0xcafebe));
+
+        assert_eq!(rgb[0], 0xca);
+        assert_eq!(rgb[1], 0xfe);
+        assert_eq!(rgb[2], 0xbe);
     }
 }
