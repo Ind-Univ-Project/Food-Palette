@@ -2,3 +2,4 @@ docker*
 /target/
 Cargo.lock
 data/images/*
+/test
