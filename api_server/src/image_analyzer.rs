@@ -4,17 +4,18 @@ use crate::pixel_data::PixelData;
 use image::{load_from_memory_with_format, DynamicImage, GenericImageView, ImageFormat, Pixel};
 use uuid::Uuid;
 
-use async_std::fs;
+use std::path::Path;
+use tokio::fs;
 
-use tide::log::info;
+use tracing::{event, span, Level};
 
 pub struct ImageAnalyzer {
     image: DynamicImage,
 }
 
 impl ImageAnalyzer {
-    pub fn new(buf: &Vec<u8>, format: &str) -> Result<Self, Error> {
-        info!("Creating Image Size: {}, Format: {}", buf.len(), format);
+    pub fn new(buf: &[u8], format: &str) -> Result<Self, Error> {
+        let _ = span!(Level::TRACE, "new ImageAnalyzer", len = buf.len(), format).entered();
 
         let format = ImageFormat::from_extension(format).ok_or(Error::UnresolvableImageFormat)?;
         let image = load_from_memory_with_format(buf, format).map_err(|e| Error::ImageError(e))?;
@@ -23,31 +24,67 @@ impl ImageAnalyzer {
     }
 
     /// ImageAnalyzer 초기화 시 입력한 이미지의 픽셀 색 구성 정보를 얻는다
-    pub fn pixel_data(&self) -> PixelData {
+    pub async fn pixel_data(&self) -> PixelData {
+        let _ = span!(Level::TRACE, "get PixelData from Image").entered();
+
         let mut result = PixelData::new(4, 4, 4);
 
         for (_, _, pixel) in self.image.pixels() {
-            result.count_color(pixel.to_rgb());
+            result.count_color(pixel.to_rgb()).await;
         }
 
         result
     }
 
     /// 주어진 포맷 정보에 맞춰 이미지를 저장한다.
-    /// 
+    ///
     /// # Arguments
     /// *`format` - 이미지의 포맷
     pub async fn save_with_format(&self, format: ImageFormat) -> Result<(), Error> {
-        fs::create_dir_all("./data/images")
-            .await
-            .map_err(|e| Error::CreateDirectoryError(e))?;
+        let span = span!(Level::TRACE, "Save image with format").entered();
+
+        if Path::new("./data/images").exists() == false {
+            event!(parent: &span, Level::INFO, "Create directory /data/images");
+
+            fs::create_dir_all("./data/images")
+                .await
+                .map_err(|e| Error::CreateDirectoryError(e))?;
+        }
 
         let path = format!("./data/images/{}", Uuid::new_v4());
 
-        info!("Creating {}", path);
         self.image.save_with_format(path, format)?;
-        info!("File created");
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use tokio::test as async_test;
+
+    use super::ImageAnalyzer;
+
+    #[async_test]
+    async fn image_analyzer_test() {
+        let image_data = include_bytes!("../test/image_analyzer_test1.png");
+
+        let image_analyzer = ImageAnalyzer::new(image_data, "png").unwrap();
+        let data = image_analyzer.pixel_data().await;
+
+        let data = data.into_string(3).await;
+
+        assert_eq!("030000000000030303", data);
+    }
+
+    #[async_test]
+    async fn look_sample() {
+        let image_data = include_bytes!("../test/analyzer_sample_2.bmp");
+
+        let image_analyzer = ImageAnalyzer::new(image_data, "bmp").unwrap();
+        let data = image_analyzer.pixel_data().await;
+        let data = data.into_string(8).await;
+
+        println!("{}", data);
     }
 }

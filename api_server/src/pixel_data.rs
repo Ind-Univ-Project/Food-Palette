@@ -1,8 +1,8 @@
 use image::Rgb;
 
-use tide::log::info;
+use tracing::{event, span, Level};
 
-use async_std::sync::Mutex;
+use tokio::sync::Mutex;
 
 pub struct PixelData {
     r_div: u8,
@@ -14,11 +14,13 @@ pub struct PixelData {
 
 impl PixelData {
     /// PixelData 인스턴스를 생성
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `*_div` - r,g,b 영역을 분할하는 값
     pub fn new(r_div: u8, g_div: u8, b_div: u8) -> Self {
+        let _ = span!(Level::TRACE, "new PixelData", r_div, g_div, b_div).entered();
+
         let mut color_count = Vec::new();
 
         for _ in 0..r_div {
@@ -45,9 +47,9 @@ impl PixelData {
 
     /// R, G, B값을 축으로 하는 3차원 영역에서
     /// 해당 색을 포함하는 영역의 인덱스를 구하는 함수
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `color` - R, G, B 중 한개의 색
     /// * `div` - 색 영역을 몇 분할 할지 결정하는 값
     ///
@@ -66,6 +68,8 @@ impl PixelData {
 
     /// 가장 많이 나온 색이 포함된 영역의 인덱스를 구하는 함수
     async fn index_of_max(&self) -> (usize, usize, usize) {
+        let span = span!(Level::TRACE, "Index of max").entered();
+
         let mut max_ind = (0, 0, 0);
         let mut max_val = 0u32;
 
@@ -81,49 +85,49 @@ impl PixelData {
             }
         }
 
+        event!(parent: &span, Level::TRACE, index_of_max = ?max_ind);
         max_ind
     }
 
     /// RGB값 하나를 입력 받아 해당 색의 개수를 1 증가 시킨다.
     pub async fn count_color(&mut self, rgb: Rgb<u8>) {
+        let _ = span!(Level::TRACE, "inc_color", ?rgb);
+
         let r_index = PixelData::get_area_index(rgb[0], self.r_div);
         let g_index = PixelData::get_area_index(rgb[1], self.g_div);
         let b_index = PixelData::get_area_index(rgb[2], self.b_div);
 
         *self.color_count[r_index][g_index][b_index].lock().await += 1;
-
-        info!(
-            "Increase Index: [r: {}, g:{}, b:{}]",
-            r_index, g_index, b_index
-        );
     }
 
     /// 전체 색 영역 중 가장 많이 나온 색 영역 순서대로
     /// 인덱스를 문자열로 반환하는 함수
     /// # Arguments
-    /// 
+    ///
     /// * `len` - 반환 될 문자열이 몇개의 색 영역을 포함할지 결정하는 값
     pub async fn into_string(self, len: usize) -> String {
+        let span = span!(Level::TRACE, "into_string()", len).entered();
         let mut result = String::from("");
 
         for _ in 0..len {
             let (r, g, b) = self.index_of_max().await;
-            let index_string = format!("{:0x}{:02x}{:02x}", r, g, b);
+            let index_string = format!("{:02x}{:02x}{:02x}", r, g, b);
             result.push_str(&index_string);
 
             *self.color_count[r][g][b].lock().await = 0;
         }
 
+        event!(parent: &span, Level::INFO, ?result);
         result
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::rgb_ext::HexCode;
     use super::*;
+    use crate::rgb_ext::HexCode;
 
-    use async_std::test as async_test;
+    use tokio::test as async_test;
     #[async_test]
     async fn get_area_index_test() {
         let rgb = Rgb::from(HexCode::new(0x0044FF));
@@ -156,7 +160,7 @@ mod test {
         let ind = pixel_data.index_of_max().await;
 
         assert_eq!((2, 3, 1), ind);
-        
+
         let color_string = pixel_data.into_string(2).await;
         assert_eq!("020301000203", color_string);
     }

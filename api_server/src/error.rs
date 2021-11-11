@@ -7,8 +7,8 @@ pub enum Error {
     UnresolvableImageFormat,
     #[error("[image] Fail to load image with format")]
     ImageError(#[from] image::ImageError),
-    #[error("[tide] Fail to get peer address")]
-    PeerAddressError,
+    #[error("[tide] Enable to parse request")]
+    InvalidRequestError,
     #[error("[async-std] Fail to create directory all")]
-    CreateDirectoryError(async_std::io::Error),
+    CreateDirectoryError(tokio::io::Error),
 }
