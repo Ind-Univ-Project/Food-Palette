@@ -6,13 +6,18 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-http-types = "*"
 
+axum = "*"
+rust_decimal = "*"
 tokio = { version = "*", features = ["full"] }
+sqlx = { version = "*", features = [ "runtime-tokio-rustls", "mysql", "decimal" ] }
+
 serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+
+tracing = "*"
+tracing-subscriber = { version = "*", features = [ "env-filter" ] }
 
 thiserror = "*"
 image = "*"
 uuid = { version = "*", features = ["v4"] }
-
-tracing = "*"
