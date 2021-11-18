@@ -7,16 +7,15 @@ use uuid::Uuid;
 use std::path::Path;
 use tokio::fs;
 
-use tracing::{event, span, Level};
+use tracing::{event, info, instrument, Level};
 
 pub struct ImageAnalyzer {
     image: DynamicImage,
 }
 
 impl ImageAnalyzer {
+    #[instrument(level = "debug")]
     pub fn new(buf: &[u8], format: &str) -> Result<Self, Error> {
-        let _ = span!(Level::TRACE, "new ImageAnalyzer", len = buf.len(), format).entered();
-
         let format = ImageFormat::from_extension(format).ok_or(Error::UnresolvableImageFormat)?;
         let image = load_from_memory_with_format(buf, format).map_err(|e| Error::ImageError(e))?;
 
@@ -24,9 +23,8 @@ impl ImageAnalyzer {
     }
 
     /// ImageAnalyzer 초기화 시 입력한 이미지의 픽셀 색 구성 정보를 얻는다
+    #[instrument(level = "debug", skip(self))]
     pub async fn pixel_data(&self) -> PixelData {
-        let _ = span!(Level::TRACE, "get PixelData from Image").entered();
-
         let mut result = PixelData::new(4, 4, 4);
 
         for (_, _, pixel) in self.image.pixels() {
@@ -40,11 +38,10 @@ impl ImageAnalyzer {
     ///
     /// # Arguments
     /// *`format` - 이미지의 포맷
-    pub async fn save_with_format(&self, format: ImageFormat) -> Result<(), Error> {
-        let span = span!(Level::TRACE, "Save image with format").entered();
-
+    #[instrument(skip(self))]
+    pub async fn save_with_format(&self, format: ImageFormat) -> Result<String, Error> {
         if Path::new("./data/images").exists() == false {
-            event!(parent: &span, Level::INFO, "Create directory /data/images");
+            event!(Level::INFO, "Create directory /data/images");
 
             fs::create_dir_all("./data/images")
                 .await
@@ -53,9 +50,11 @@ impl ImageAnalyzer {
 
         let path = format!("./data/images/{}", Uuid::new_v4());
 
-        self.image.save_with_format(path, format)?;
+        self.image.save_with_format(&path, format)?;
 
-        Ok(())
+        info!("save success [Path: {}]", path);
+
+        Ok(path)
     }
 }
 
@@ -79,7 +78,7 @@ mod test {
 
     #[async_test]
     async fn look_sample() {
-        let image_data = include_bytes!("../test/analyzer_sample_2.bmp");
+        let image_data = include_bytes!("../test/analyzer_sample_4.bmp");
 
         let image_analyzer = ImageAnalyzer::new(image_data, "bmp").unwrap();
         let data = image_analyzer.pixel_data().await;

@@ -1,6 +1,6 @@
 use image::Rgb;
 
-use tracing::{event, span, Level};
+use tracing::{info, instrument, span, trace, Level};
 
 use tokio::sync::Mutex;
 
@@ -18,9 +18,8 @@ impl PixelData {
     /// # Arguments
     ///
     /// * `*_div` - r,g,b 영역을 분할하는 값
+    #[instrument(level = "debug")]
     pub fn new(r_div: u8, g_div: u8, b_div: u8) -> Self {
-        let _ = span!(Level::TRACE, "new PixelData", r_div, g_div, b_div).entered();
-
         let mut color_count = Vec::new();
 
         for _ in 0..r_div {
@@ -63,15 +62,15 @@ impl PixelData {
     /// assert_eq!(get_area_index(R, 4), 0);
     /// ```
     pub fn get_area_index(color: u8, div: u8) -> usize {
+        trace!("get_area_index color={} div={}", color, div);
         (color / ((u8::MAX as u16 + 1) / div as u16) as u8) as usize
     }
 
     /// 가장 많이 나온 색이 포함된 영역의 인덱스를 구하는 함수
+    #[instrument(skip(self))]
     async fn index_of_max(&self) -> (usize, usize, usize) {
-        let span = span!(Level::TRACE, "Index of max").entered();
-
         let mut max_ind = (0, 0, 0);
-        let mut max_val = 0u32;
+        let mut max_val = 0_u32;
 
         for (r, v) in self.color_count.iter().enumerate() {
             for (g, v) in v.iter().enumerate() {
@@ -85,11 +84,12 @@ impl PixelData {
             }
         }
 
-        event!(parent: &span, Level::TRACE, index_of_max = ?max_ind);
+        trace!("max index={:?}", max_ind);
         max_ind
     }
 
     /// RGB값 하나를 입력 받아 해당 색의 개수를 1 증가 시킨다.
+    #[instrument(skip(self))]
     pub async fn count_color(&mut self, rgb: Rgb<u8>) {
         let _ = span!(Level::TRACE, "inc_color", ?rgb);
 
@@ -105,8 +105,8 @@ impl PixelData {
     /// # Arguments
     ///
     /// * `len` - 반환 될 문자열이 몇개의 색 영역을 포함할지 결정하는 값
+    #[instrument(skip(self))]
     pub async fn into_string(self, len: usize) -> String {
-        let span = span!(Level::TRACE, "into_string()", len).entered();
         let mut result = String::from("");
 
         for _ in 0..len {
@@ -117,7 +117,7 @@ impl PixelData {
             *self.color_count[r][g][b].lock().await = 0;
         }
 
-        event!(parent: &span, Level::INFO, ?result);
+        info!("result={}", result);
         result
     }
 }
