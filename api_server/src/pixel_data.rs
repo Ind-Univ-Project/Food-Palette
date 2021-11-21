@@ -91,11 +91,11 @@ impl PixelData {
     /// RGB값 하나를 입력 받아 해당 색의 개수를 1 증가 시킨다.
     #[instrument(skip(self))]
     pub async fn count_color(&mut self, rgb: Rgb<u8>) {
-        let _ = span!(Level::TRACE, "inc_color", ?rgb);
-
         let r_index = PixelData::get_area_index(rgb[0], self.r_div);
         let g_index = PixelData::get_area_index(rgb[1], self.g_div);
         let b_index = PixelData::get_area_index(rgb[2], self.b_div);
+
+        trace!("r: {} g: {} b: {}", r_index, g_index, b_index);
 
         *self.color_count[r_index][g_index][b_index].lock().await += 1;
     }
