@@ -5,7 +5,7 @@ pub struct HexCode {
 }
 impl HexCode {
     pub fn new(value: u32) -> Self {
-        assert_eq!(0xFF000000 & value, 0);
+        assert_eq!(0xFF000000 & value, 0, "value: {} is too big", value);
         Self { value }
     }
 }
@@ -43,11 +43,17 @@ mod test {
     }
 
     #[test]
-    fn from_hed_code_test() {
+    fn from_hex_code_test() {
         let rgb = Rgb::from(HexCode::new(0xcafebe));
 
         assert_eq!(rgb[0], 0xca);
         assert_eq!(rgb[1], 0xfe);
         assert_eq!(rgb[2], 0xbe);
+    }
+
+    #[test]
+    #[should_panic]
+    fn too_big_hexcode_gen_test() {
+        let _ = HexCode::new(0x01FFFFFF);
     }
 }
