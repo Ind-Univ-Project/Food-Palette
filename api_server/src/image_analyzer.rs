@@ -47,14 +47,14 @@ impl ImageAnalyzer {
                 .await
                 .map_err(|e| Error::CreateDirectoryError(e))?;
         }
-
-        let path = format!("./data/images/{}", Uuid::new_v4());
+        let file_name = format!("{}.{}", Uuid::new_v4(), &format.extensions_str()[0]);
+        let path = format!("./data/images/{}", file_name);
 
         self.image.save_with_format(&path, format)?;
 
         info!("save success [Path: {}]", path);
 
-        Ok(path)
+        Ok(file_name)
     }
 }
 
