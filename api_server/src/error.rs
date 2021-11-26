@@ -11,4 +11,6 @@ pub enum Error {
     CreateDirectoryError(tokio::io::Error),
     #[error("[sqlx] DB error")]
     DBError(#[from] sqlx::Error),
+    #[error("[std] io Error")]
+    STDIOError(#[from] std::io::Error),
 }
