@@ -1,19 +1,21 @@
-mod web_schema;
 mod error;
 mod image_analyzer;
 mod pixel_data;
 mod rgb_ext;
+mod web_schema;
 
-use std::collections::HashMap;
 use std::net::SocketAddr;
+use std::{collections::HashMap, io::Read};
 
-use web_schema::CategorizedImage;
 use error::Error;
+use image::guess_format;
 use image_analyzer::ImageAnalyzer;
+use web_schema::CategorizedImage;
 
 use axum::{
-    extract::{ConnectInfo, Extension, Json, Query},
-    http::StatusCode,
+    body::Body,
+    extract::{ConnectInfo, Extension, Json, Path, Query},
+    http::{Response, StatusCode},
     routing::{get, post},
     AddExtensionLayer, Router,
 };
@@ -32,7 +34,7 @@ async fn main() -> Result<(), Error> {
         .with_writer(std::io::stderr)
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .with_target(false)
-        .with_span_events(tracing_subscriber::fmt::format::FmtSpan::ACTIVE)
+        .with_span_events(tracing_subscriber::fmt::format::FmtSpan::EXIT)
         .init();
 
     let _ = span!(Level::INFO, "server_span").entered();
@@ -43,7 +45,8 @@ async fn main() -> Result<(), Error> {
         .route("/", get(index))
         .route("/get_star", get(get_star))
         .route("/add_star", get(add_star))
-        .route("upload_image", post(upload_image))
+        .route("/upload_image", post(upload_image))
+        .route("/image/:image_path", get(get_image))
         .layer(AddExtensionLayer::new(db));
     let addr = SocketAddr::from(([0, 0, 0, 0], 8089));
 
@@ -87,7 +90,7 @@ async fn add_star(
         .bind(star)
         .execute(&*db.0)
         .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?;
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(StatusCode::OK)
 }
@@ -102,13 +105,16 @@ async fn get_reccommendation(
     //response
 }
 
-#[instrument(skip(payload))]
+//#[instrument(skip(payload))]
 async fn upload_image(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     db: Extension<Arc<MySqlPool>>,
     Json(payload): Json<CategorizedImage>,
 ) -> Result<String, StatusCode> {
-    let analyzer = ImageAnalyzer::new(payload.image_buffer.as_bytes(), &payload.image_type)
+    let image_buffer =
+        base64::decode(&payload.image_buffer).map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    let analyzer = ImageAnalyzer::new(&image_buffer, &payload.image_type)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let analyzed_data = analyzer.pixel_data().await.into_string(6).await;
@@ -118,8 +124,8 @@ async fn upload_image(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     let category = payload.category;
 
-    sqlx::query("INSERT INTO images (path, category, data) VALUES (?, ?, ?)")
-        .bind(&path)
+    sqlx::query("INSERT INTO images VALUES (?, ?, ?)")
+        .bind(path.clone())
         .bind(category)
         .bind(analyzed_data)
         .execute(&*db.0)
@@ -130,7 +136,26 @@ async fn upload_image(
 }
 
 #[instrument]
-async fn get_image() {
-    //parse get method parameter
-    //response image file
+async fn get_image(
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    db: Extension<Arc<MySqlPool>>,
+    Path(image_path): Path<String>,
+) -> Result<Response<Body>, StatusCode> {
+    let mut img = std::fs::File::open(format!("./data/images/{}", image_path))
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    let mut img_bytes = Vec::new();
+
+    img.read_to_end(&mut img_bytes)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let format = guess_format(&img_bytes)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .extensions_str()[0];
+    let format = format!("image/{}", format);
+
+    Ok(Response::builder()
+        .header("Content-Type", format)
+        .body(img_bytes.into())
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?)
 }

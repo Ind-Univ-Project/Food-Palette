@@ -6,4 +6,3 @@ pub struct CategorizedImage {
     pub image_type: String,
     pub image_buffer: String,
 }
-
