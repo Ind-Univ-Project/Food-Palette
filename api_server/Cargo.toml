@@ -11,6 +11,7 @@ axum = "*"
 rust_decimal = "*"
 tokio = { version = "*", features = ["full"] }
 sqlx = { version = "*", features = [ "runtime-tokio-rustls", "mysql", "decimal" ] }
+base64 = "*"
 
 serde = { version = "*", features = ["derive"] }
 serde_json = "*"
