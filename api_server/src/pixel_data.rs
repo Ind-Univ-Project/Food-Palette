@@ -67,7 +67,7 @@ impl PixelData {
     }
 
     /// 가장 많이 나온 색이 포함된 영역의 인덱스를 구하는 함수
-    #[instrument(skip(self))]
+    #[instrument(skip(self), level = "debug")]
     async fn index_of_max(&self) -> (usize, usize, usize) {
         let mut max_ind = (0, 0, 0);
         let mut max_val = 0_u32;
@@ -89,7 +89,7 @@ impl PixelData {
     }
 
     /// RGB값 하나를 입력 받아 해당 색의 개수를 1 증가 시킨다.
-    #[instrument(skip(self))]
+    #[instrument(skip(self), level = "trace")]
     pub async fn count_color(&mut self, rgb: Rgb<u8>) {
         let r_index = PixelData::get_area_index(rgb[0], self.r_div);
         let g_index = PixelData::get_area_index(rgb[1], self.g_div);
@@ -105,7 +105,7 @@ impl PixelData {
     /// # Arguments
     ///
     /// * `len` - 반환 될 문자열이 몇개의 색 영역을 포함할지 결정하는 값
-    #[instrument(skip(self))]
+    #[instrument(skip(self), level = "debug")]
     pub async fn into_string(self, len: usize) -> String {
         let mut result = String::from("");
 
