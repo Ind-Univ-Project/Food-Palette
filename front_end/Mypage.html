@@ -87,7 +87,20 @@
 													<tr>
 														<td>2021-11-01</td>
 														<td>연어 초밥</td>
-														<td>Upload</td>
+														<td><label class="form-label" for="customFile">Default file input example</label>
+															<input type="file" class="form-control" id="Upload" />
+															<ul class="actions">
+																<li><input type="submit" value="Upload" class="primary" id="UploadImage">
+																	<script>
+																		const uploadBtn = document.getElementById("UploadImage");
+																		console.log(uploadBtn)
+																		function uploadFile(){const cFile = document.getElementById("UploadImage").files[0]}
+																		uploadBtn.addEventListner("click", uploadFile, false)
+																	</script>
+																</li>
+																
+															</ul>
+														</td>
 														<td>Good</td>
 													</tr>
 													<tr>
@@ -137,6 +150,7 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script src="src/ajax.js"></script>
 
 	</body>
 </html>
