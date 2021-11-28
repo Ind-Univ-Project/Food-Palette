@@ -46,20 +46,25 @@
    
     //F-R Result 이미지 이름으로 요청
     $.ajax({
-        url: "http://address.of.server/image/image_name",
+        url: "http://1.246.129.14/image/image_name",
         method:"GET",
+        datatype: "json",
         success: function(result){
             if (result){
-                document.getElementById("food-image").src = result
+                document.getElementById("food-image1").src = result
             }else{
                 alert("불러오기 실패");
             }
 
         }
     })
+    .done(function(json){
+            $("<h1>").text(json.title).appendTo("body");
+            $("<div class= \"content\">").html(json.html).appendTo("body");
+    })
     //
     $.ajax({
-        url: "http://address.of.server/image/image_name",
+        url: "http://1.246.129.14/image/image_name",
         method:"GET",
         success: function(result){
             if (result){
