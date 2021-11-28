@@ -100,7 +100,9 @@ input, select, textarea {
 			-ms-transition: none !important;
 			transition: none !important;
 		}
-
+	input#exampleFormControlFile1 {
+			color: #000;
+		}
 	body, input, select, textarea {
 		color: #fff;
 		font-family: "Open Sans", Helvetica, sans-serif;
