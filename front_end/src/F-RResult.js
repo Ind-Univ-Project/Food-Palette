@@ -7,13 +7,13 @@ function startLoadFile(){
     $.ajax({ 
         url: 'http://1.246.129.141/image/d9562bca-afe0-4f9a-8587-f17cd9b54e0f.png', 
         type: 'GET', 
-        dataType : 'image/? ', 
+        dataType : 'jsonp image/png', 
         success : function (data) { 
-            if(data) {
+            if(data) { //성공메시지
                 console.log('GET 완료!!');
                 
                 createImages(data);
-            } else {
+            } else { //실패 메시지
                 console.log('GET Fail');
             }
         }
