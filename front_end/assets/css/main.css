@@ -101,6 +101,14 @@ input, select, textarea {
 			transition: none !important;
 		}
 
+	input#exampleFormControlFile1 {
+		color: #000;
+	}
+
+	input#Upload {
+		color: #000;
+	}
+
 	body, input, select, textarea {
 		color: #fff;
 		font-family: "Open Sans", Helvetica, sans-serif;
