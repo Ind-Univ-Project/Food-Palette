@@ -87,19 +87,31 @@
 													<tr>
 														<td>2021-11-01</td>
 														<td>연어 초밥</td>
-														<td><label class="form-label" for="customFile">Default file input example</label>
-															<input type="file" class="form-control" id="Upload" />
-															<ul class="actions">
-																<li><input type="submit" value="Upload" class="primary" id="UploadImage">
-																	<script>
-																		const uploadBtn = document.getElementById("UploadImage");
-																		console.log(uploadBtn)
-																		function uploadFile(){const cFile = document.getElementById("UploadImage").files[0]}
-																		uploadBtn.addEventListner("click", uploadFile, false)
-																	</script>
-																</li>
-																
-															</ul>
+														<td>
+															<form id="uploadForm" method="POST" action="http://1.246.129.141/upload_image">
+																<label class="form-label" for="customFile">Default file input example</label>
+																<input type="file" class="form-control" id="Upload" />
+																<ul class="actions">
+																	<li>
+																		<input type="submit" value="Upload" class="primary" id="UploadImage">
+																		<script>
+																			//const uploadBtn = btoa(document.getElementById("UploadImage"));
+																			const uploadBtn = btoa(document.getElementById("images/떡국.jfif"))
+																			console.log(uploadBtn)
+
+																			// const uploadFile2 = document.querySelector("input#Upload").files[0];
+																			// console.log(uploadFile2)
+																			
+																			// function uploadFile(){
+																			// 	const cFile = document.getElementById("UploadImage").files[0]
+																				
+																			// }
+																			// uploadBtn.addEventListener("click", uploadFile, false)
+																		</script>
+																	</li>
+																	
+																</ul>
+															</form>
 														</td>
 														<td>Good</td>
 													</tr>
