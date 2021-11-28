@@ -25,7 +25,11 @@
             url: "http://1.246.129.141/upload_image",
             type:"POST",
             enctype: 'multipart/form-data',
-            data: data,
+            data: {
+                category: '연어초밥',
+                image_type: 'png',
+                image_buffer: ""
+            },
             success: function(result){
                 if (result){
                     console.log(result) 
