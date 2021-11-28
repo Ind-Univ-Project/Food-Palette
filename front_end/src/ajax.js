@@ -24,7 +24,7 @@
         $.ajax({
             url: "http://1.246.129.141/upload_image",
             type:"POST",
-            enctype: 'multipart/form-data',
+            ContentType: 'application/json',
             data: {
                 category: '연어초밥',
                 image_type: 'png',
