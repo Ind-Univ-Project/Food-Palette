@@ -11,6 +11,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
         <meta name="author" content="Made by Builde(Da-Eun Lee)" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<script src="src/menuRecom.js" defer></script>
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
 	<body class="is-preload">
@@ -53,7 +54,7 @@
 									<div class="box alt">
 										<div class="row gtr-50 gtr-uniform">
 											<div class="col-4">
-												<span class="image fit"><img src="images/red.png" alt="Red"/>
+												<span class="image fit"><img data-key="color" data-value="Red" src="images/red.png" alt="Red"/>
 													<p style="text-align: center;";><b>Red</b></p>
 													<!--화면에 글자 출력
 														<div style="left: 100px; width: 450px; bottom: 140px; font-size: 1.8em; font-weight: bold; position: absolute;">
@@ -63,46 +64,46 @@
 												</span>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/orange.png" alt="Orange" />
+												<span class="image fit"><img data-key="color" data-value="Orange" src="images/orange.png" alt="Orange" />
 													<p style="text-align: center;";><b>Orange</b></p>
 												</span>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/yellow.png" alt="Yellow" />
+												<span class="image fit"><img data-key="color" data-value="Yellow" src="images/yellow.png" alt="Yellow" />
 													<p style="text-align: center;";><b>Yellow</b></p>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/green.png" alt="Green" />
+												<span class="image fit"><img data-key="color" data-value="Green" src="images/green.png" alt="Green" />
 													<p style="text-align: center;";><b>Green</b></p>
 												</span>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/blue.png" alt="Blue" />
+												<span class="image fit"><img data-key="color" data-value="Blue" src="images/blue.png" alt="Blue" />
 													<p style="text-align: center;";><b>Blue</b></p>
 												</span>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/purple.png" alt="Purple" />
+												<span class="image fit"><img data-key="color" data-value="Purple" src="images/purple.png" alt="Purple" />
 													<p style="text-align: center;";><b>Purple</b></p>
 												</span>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/black.png" alt="Black" />
+												<span class="image fit"><img data-key="color" data-value="Black" src="images/black.png" alt="Black" />
 													<p style="text-align: center;";><b>Black</b></p>
 												</span>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/brown.png" alt="Brown" />
+												<span class="image fit"><img data-key="color" data-value="Brown" src="images/brown.png" alt="Brown" />
 													<p style="text-align: center;";><b>Brown</b></p>
 												</span>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/white.png" alt="White" />
+												<span class="image fit"><img data-key="color" data-value="White" src="images/white.png" alt="White" />
 													<p style="text-align: center;";><b>White</b></p>
 												</span>
 											</div>
 											<div class="col-4">
-												<span class="image fit"><img src="images/pink.png" alt="Pink" />
+												<span class="image fit"><img data-key="color" data-value="Pink" src="images/pink.png" alt="Pink" />
 													<p style="text-align: center;";><b>Pink</b></p>
 												</span>
 											</div>
@@ -111,8 +112,9 @@
 										<form method="post" action="#">
 											<div class="row gtr-uniform">
 												<div class="col-12">
-													<select name="demo-category" id="demo-category">
-														<option value="">- 1st -</option>
+													<span class="first-color">- 1st -</span>
+													<!-- <select name="demo-category" id="demo-category">
+														<option value=""></option>
 														<option value="1">Red</option>
 														<option value="1">Yellow</option>
 														<option value="1">Green</option>
@@ -122,14 +124,15 @@
 														<option value="1">Brown</option>
 														<option value="1">White</option>
 														<option value="1">Pink</option>
-													</select>
+													</select> -->
 												</div>
 											</div>
 										</form>
 										<form method="post" action="#">
 											<div class="row gtr-uniform">
 												<div class="col-12">
-													<select name="demo-category" id="demo-category">
+													<span  class="second-color">- 2nd -</span>
+													<!-- <select name="demo-category" id="demo-category">
 														<option value="">- 2nd -</option>
 														<option value="1">Red</option>
 														<option value="1">Yellow</option>
@@ -140,14 +143,15 @@
 														<option value="1">Brown</option>
 														<option value="1">White</option>
 														<option value="1">Pink</option>
-													</select>
+													</select> -->
 												</div>
 											</div>
 										</form>
 										<form method="post" action="#">
 											<div class="row gtr-uniform">
+												<span class="third-color">- 3rd -</span>
 												<div class="col-12">
-													<select name="demo-category" id="demo-category">
+													<!-- <select name="demo-category" id="demo-category">
 														<option value="">- 3rd -</option>
 														<option value="1">Red</option>
 														<option value="1">Yellow</option>
@@ -158,7 +162,7 @@
 														<option value="1">Brown</option>
 														<option value="1">White</option>
 														<option value="1">Pink</option>
-													</select>
+													</select> -->
 												</div>
 											</div>
 										</form>
@@ -198,6 +202,6 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
-
+			
 	</body>
 </html>
