@@ -52,8 +52,19 @@
 									<p>당신의 메뉴는?</p>
 									<div class="Result">
 										<div class="row gtr-50">
-											<p>1. 떡국
-												<div class="col-12-small"><span class="image fit"><img src="images/떡국.jfif" alt="" /></span></div>
+											<p>1. 떡국 <!--서버에서 받은 메뉴이름-->
+												<div class="col-12-small">
+													<span class="image fit">
+														<!-- <img id="food-image" src="images/떡국.jfif" alt=""/>  -->
+														<!--서버에서 받은 메뉴사진-->
+														
+													</span>
+													<div id="image_container"> <!-- 이미지 마크업 생성 공간 --> 
+														
+													</div>
+													<a href="img.png" download="output.png">Download</a>
+													
+												</div>
 											</p>
 											<p>
 											<p>2. 굴국밥
@@ -62,11 +73,11 @@
 											<p>1. 재첩국
 												<div class="col-12-small"><span class="image fit"><img src="images/재첩국.jfif" alt="" /></span></div>
 											</p>
-											</div>
+										</div>
 									</div>
 									<div class="col-12">
 										<ul class="actions">
-											<li><input type="submit" value="Restart" class="primary" /></li>
+											<li><input type="submit" value="Restart" class="primary"onclick="location.href='MenuRecommendation.html'"/></li>
 										</ul>
 									</div>
 								</section>
@@ -98,6 +109,7 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script src="src/F-RResult.js"></script>
 
 	</body>
 </html>
