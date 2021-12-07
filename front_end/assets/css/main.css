@@ -108,6 +108,28 @@ input, select, textarea {
 	input#Upload {
 		color: #000;
 	}
+/* 수정 */
+	.image.fit { 
+		width: 100%;
+		height: 100%;
+	}
+
+	.image.fit span {
+		display: inline-block;
+		width: 100%;
+		height: 100%;
+	}
+	/* 추가 사각형 */
+	.square {
+		width: 100%;
+		margin: 50px;
+	  }
+	  
+	.square:after {
+		content: "";
+		display: block;
+		padding-bottom: 100%;
+	}
 
 	body, input, select, textarea {
 		color: #fff;
