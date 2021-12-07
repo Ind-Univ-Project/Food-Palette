@@ -107,11 +107,11 @@ impl PixelData {
     /// * `len` - 반환 될 문자열이 몇개의 색 영역을 포함할지 결정하는 값
     #[instrument(skip(self), level = "debug")]
     pub async fn into_string(self, len: usize) -> String {
-        let mut result = String::from("");
+        let mut result = String::from("|");
 
         for _ in 0..len {
             let (r, g, b) = self.index_of_max().await;
-            let index_string = format!("{:02x}{:02x}{:02x}", r, g, b);
+            let index_string = Self::index_to_string((r, g, b));
             result.push_str(&index_string);
 
             *self.color_count[r][g][b].lock().await = 0;
@@ -119,6 +119,11 @@ impl PixelData {
 
         info!("result={}", result);
         result
+    }
+
+    pub fn index_to_string(rgb_tuple: (usize, usize, usize)) -> String {
+        let (r, g, b) = rgb_tuple;
+        format!("{:02x}{:02x}{:02x}|", r, g, b)
     }
 }
 
