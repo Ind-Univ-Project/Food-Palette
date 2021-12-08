@@ -24,4 +24,39 @@ function colorClick(event) {
 
 colorSelector.addEventListener('click', event => colorClick(event));
 
+function startSendColor(){ 
+    // 사용자가 선택한 1순위~3순위의 컬러값을 저장
+    var selectColorList = new Array() ;
 
+    for(let i = 0; i < 3; i++) {
+        // 객체 생성
+        let data = new Object() ;
+        
+        data.color = i ;
+        data.name = "Color #" + i ;
+        
+        
+        // 리스트에 생성된 객체 삽입
+        testList.push(data) ;
+    }
+    
+    // String 형태로 변환
+    var jsonData = JSON.stringify(testList) ;
+    
+    alert(jsonData) ;
+
+
+    $.ajax({ 
+        url: 'http://1.246.129.141/', //images.json
+        type: 'POST', 
+        data: {
+            'color1': firstColor, 
+            'color2': secondColor, 
+            'color3' : thirdColor
+        },
+        success: function(result){
+        },
+        error:function(){  
+        }
+    }); 
+} 
