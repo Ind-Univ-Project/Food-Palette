@@ -75,15 +75,7 @@
 // $("#result3").attr("src", "https://user-images.githubusercontent.com/53327279/143771553-ddd1c1c8-5526-416a-9209-9533bd2b14a1.png")
 
 // GET 방식으로 서버에 HTTP Request를 보냄. 
-$.get("http://1.246.129.141/", 
-// 서버가 필요한 정보를 같이 보냄. 
-    { color1: "yellow", color2: "red", color3: "blue", }, 
-        function(data, status) { 
-            $("#result1").html(data + "<br>" + status); 
-            
-// 전송받은 데이터와 전송 성공 여부를 보여줌. 
-        } 
-    ); 
+
 
 
 function startLoadFile(){ 

@@ -2,6 +2,7 @@ const colorSelector = document.querySelector(".row.gtr-50.gtr-uniform");
 const firstColor = document.querySelector(".first-color");
 const secondColor = document.querySelector(".second-color");
 const thirdColor = document.querySelector(".third-color");
+const foodRecoBtn = document.querySelector("#food-reco-btn");
 
 let value1;
 
@@ -23,40 +24,50 @@ function colorClick(event) {
 }
 
 colorSelector.addEventListener('click', event => colorClick(event));
+foodRecoBtn.addEventListener('click', () => startSendColor());
+
 
 function startSendColor(){ 
-    // 사용자가 선택한 1순위~3순위의 컬러값을 저장
-    var selectColorList = new Array() ;
+    let jsonTest = new Array();
+    // JSON 
+    let selectColorList = new Object() ;
+    // 사용자가 선택한 color 헥사값 저장 리스트
+    let colorHexList = new Array();
+    // food 리스트 
+    let foodList = new Array();
 
-    for(let i = 0; i < 3; i++) {
-        // 객체 생성
-        let data = new Object() ;
-        
-        data.color = i ;
-        data.name = "Color #" + i ;
-        
-        
-        // 리스트에 생성된 객체 삽입
-        testList.push(data) ;
-    }
-    
+
+    // color key에 저장될 값
+    colorHexList.push(firstColor.innerTex.substring(1, 6));
+    colorHexList.push(secondColor.innerText.substring(1, 6));
+    colorHexList.push(thirdColor.innerTex.substring(1, 6));
+
+    // foods key에 저장될 값
+    foodList.push("굴");
+
+    // Object의 id속성 생성
+    selectColorList.colors = colorHexList;
+    selectColorList.foods = foodList;
+
+    jsonTest.push(selectColorList);
+
     // String 형태로 변환
-    var jsonData = JSON.stringify(testList) ;
-    
+    let jsonData = JSON.stringify(jsonTest) ;
+
     alert(jsonData) ;
 
-
     $.ajax({ 
-        url: 'http://1.246.129.141/', //images.json
+        url: 'http://1.246.129.141/recommendation', //images.json
         type: 'POST', 
-        data: {
-            'color1': firstColor, 
-            'color2': secondColor, 
-            'color3' : thirdColor
-        },
+        dataType: 'json',
+        data: jsonData,
+        ContentType: 'application/json',
         success: function(result){
+            console.log('POST 성공');
+            alert(jsonData) ;
         },
-        error:function(){  
+        error: function(){ 
+            alert("ERROR") ;
         }
     }); 
 } 
