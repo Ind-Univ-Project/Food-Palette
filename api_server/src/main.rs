@@ -56,7 +56,8 @@ async fn main() -> Result<(), Error> {
         .route("/add_star", get(add_star))
         .route("/upload_image", post(upload_image))
         .route("/image/:image_path", get(get_image))
-        .route("/reccomendation", post(get_reccommendation))
+        .route("/recommendation", post(get_recommendation))
+        
         .layer(cors)
         .layer(AddExtensionLayer::new(db));
     let addr = SocketAddr::from(([0, 0, 0, 0], 8089));
@@ -70,9 +71,19 @@ async fn main() -> Result<(), Error> {
 }
 
 #[instrument]
-async fn index(ConnectInfo(addr): ConnectInfo<SocketAddr>) -> &'static str {
-    "Welcome to API Server"
+async fn index(ConnectInfo(addr): ConnectInfo<SocketAddr>, db: Extension<Arc<MySqlPool>>,) -> Result<Json<Vec<(String, String, String)>>, StatusCode> {
+    let ret = sqlx::query("SELECT * FROM images LIMIT 100")
+    .fetch_all(&*db.0)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let ret: Vec<_> = ret.into_iter()
+        .map(|row| (row.get::<String, usize>(0), row.get::<String, usize>(1), row.get::<String, usize>(2)))
+        .collect();
+    
+    Ok(Json(ret))
 }
+
 
 #[instrument]
 async fn get_star(
@@ -107,7 +118,7 @@ async fn add_star(
 }
 
 #[instrument]
-async fn get_reccommendation(
+async fn get_recommendation(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     db: Extension<Arc<MySqlPool>>,
     Json(filter): Json<ImageSelectionFilter>,
@@ -153,6 +164,7 @@ async fn get_reccommendation(
 
     let result: Vec<_> = result
         .into_iter()
+        .take(5)
         .map(|row| (row.get::<String, usize>(0), row.get::<String, usize>(1)))
         .collect();
 
