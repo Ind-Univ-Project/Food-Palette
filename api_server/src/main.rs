@@ -8,9 +8,10 @@ use std::net::SocketAddr;
 use std::{collections::HashMap, io::Read};
 
 use error::Error;
-use image::guess_format;
+use image::{guess_format, Rgb};
 use image_analyzer::ImageAnalyzer;
-use web_schema::CategorizedImage;
+use pixel_data::PixelData;
+use web_schema::{CategorizedImage, ImageSelectionFilter};
 
 use axum::{
     body::Body,
@@ -19,13 +20,17 @@ use axum::{
     routing::{get, post},
     AddExtensionLayer, Router,
 };
+use http::Method;
 use rust_decimal::Decimal;
 use sqlx::{mysql::MySqlPool, Executor, Row};
+use tower_http::cors::{any, CorsLayer};
 
 use tracing::{info, instrument, span, Level};
 use tracing_subscriber::{prelude::*, Layer};
 
 use std::sync::Arc;
+
+use crate::rgb_ext::HexCode;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -41,12 +46,19 @@ async fn main() -> Result<(), Error> {
 
     let db = Arc::new(MySqlPool::connect("mysql://root:pass1234@db/core").await?);
 
+    let cors = CorsLayer::new()
+        .allow_methods(vec![Method::GET, Method::POST])
+        .allow_origin(any());
+
     let app = Router::new()
         .route("/", get(index))
         .route("/get_star", get(get_star))
         .route("/add_star", get(add_star))
         .route("/upload_image", post(upload_image))
         .route("/image/:image_path", get(get_image))
+        .route("/recommendation", post(get_recommendation))
+        
+        .layer(cors)
         .layer(AddExtensionLayer::new(db));
     let addr = SocketAddr::from(([0, 0, 0, 0], 8089));
 
@@ -59,9 +71,19 @@ async fn main() -> Result<(), Error> {
 }
 
 #[instrument]
-async fn index(ConnectInfo(addr): ConnectInfo<SocketAddr>) -> &'static str {
-    "Welcome to API Server"
+async fn index(ConnectInfo(addr): ConnectInfo<SocketAddr>, db: Extension<Arc<MySqlPool>>,) -> Result<Json<Vec<(String, String, String)>>, StatusCode> {
+    let ret = sqlx::query("SELECT * FROM images LIMIT 100")
+    .fetch_all(&*db.0)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let ret: Vec<_> = ret.into_iter()
+        .map(|row| (row.get::<String, usize>(0), row.get::<String, usize>(1), row.get::<String, usize>(2)))
+        .collect();
+    
+    Ok(Json(ret))
 }
+
 
 #[instrument]
 async fn get_star(
@@ -96,13 +118,57 @@ async fn add_star(
 }
 
 #[instrument]
-async fn get_reccommendation(
+async fn get_recommendation(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     db: Extension<Arc<MySqlPool>>,
-) {
-    //get json from request
-    //filtering with user_dislike, user_recents, color_data -> with db query
-    //response
+    Json(filter): Json<ImageSelectionFilter>,
+) -> Result<Json<Vec<(String, String)>>, StatusCode> {
+    let colors: Vec<_> = filter
+        .colors
+        .into_iter()
+        .map(|e| Rgb::from(HexCode::new(e)))
+        .map(|color| {
+            (
+                PixelData::get_area_index(color[0], 4),
+                PixelData::get_area_index(color[1], 4),
+                PixelData::get_area_index(color[2], 4),
+            )
+        })
+        .map(|idx| PixelData::index_to_string(idx))
+        .collect();
+
+    let mut color_query = String::new();
+
+    for color in colors {
+        color_query.push_str("%|");
+        color_query.push_str(&color);
+    }
+    color_query.push('%');
+
+    let mut food_query = String::new();
+
+    for food in filter.foods {
+        food_query.push_str(&food);
+        food_query.push(',');
+    }
+    food_query.push_str("NULL");
+
+    let result = sqlx::query(
+        "SELECT (path, category) from images WHERE data LIKE ? AND category NOT IN (?)",
+    )
+    .bind(color_query)
+    .bind(food_query)
+    .fetch_all(&*db.0)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let result: Vec<_> = result
+        .into_iter()
+        .take(5)
+        .map(|row| (row.get::<String, usize>(0), row.get::<String, usize>(1)))
+        .collect();
+
+    Ok(Json(result))
 }
 
 //#[instrument(skip(payload))]
